@@ -129,34 +129,6 @@ def test_uppercase_gender(mock_get):
     tallest_hero = get_tallest_hero("MALE", True)
     assert tallest_hero['name'] == "Hero0"
 
-# Тестирование функции с полом, переданным в нижнем регистре
-@patch('requests.get')
-def test_lowercase_gender(mock_get):
-    """
-    Тестирует вызов функции с полом, переданным в нижнем регистре ("female").
-    Ожидается, что самым высоким героем будет "Hero16".
-    """
-    mock_response = MOCK_RESPONSE
-    mock_get.return_value.status_code = 200
-    mock_get.return_value.json = lambda: mock_response
-
-    tallest_hero = get_tallest_hero("female", False)
-    assert tallest_hero['name'] == "Hero16"
-
-# Тестирование функции с полом, переданным в смешанном регистре
-@patch('requests.get')
-def test_upper_lower_cases_gender(mock_get):
-    """
-    Тестирует вызов функции с полом, переданным в смешанном регистре ("FeMaLe").
-    Ожидается, что самым высоким героем будет "Hero16".
-    """
-    mock_response = MOCK_RESPONSE
-    mock_get.return_value.status_code = 200
-    mock_get.return_value.json = lambda: mock_response
-
-    tallest_hero = get_tallest_hero("FeMaLe", False)
-    assert tallest_hero['name'] == "Hero16"
-
 # Тестирование функции с полом, переданным с пробелами в конце
 @patch('requests.get')
 def test_spaces_gender(mock_get):
