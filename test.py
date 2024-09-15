@@ -1,90 +1,7 @@
 import pytest
-import requests
 from unittest.mock import patch
 from main import get_tallest_hero
-
-MOCK_RESPONSE = [
-        {
-            "name": "Hero1",
-            "appearance": {"gender": "Male", "height": ["6'8", '203 cm']},
-            "work": {"occupation": "Scientist"}
-        },
-        {
-            "name": "Hero2",
-            "appearance": {"gender": "Male", "height": ["6'2", '188 cm']},
-            "work": {"occupation": "Doctor"}
-        },
-        {
-            "name": "Hero3",
-            "appearance": {"gender": "Male", "height": ['-', '0 cm']},
-            "work": {"occupation": "Student"}
-        },
-        {
-            "name": "Hero4",
-            "appearance": {"gender": "Male", "height": ['205', '62.5 meters']},
-            "work": {"occupation": "Professional Criminal"}
-        },
-        {
-            "name": "Hero5",
-            "appearance": {"gender": "Female", "height": ["6'3", '191 cm']},
-            "work": {"occupation": "Criminal, former Scientist"}
-        },
-        {
-            "name": "Hero6",
-            "appearance": {"gender": "Female", "height": ["5'5", '165 cm']},
-            "work": {"occupation": "Green Lantern, Adventurer, Artist"}
-        },
-        {
-            "name": "Hero7",
-            "appearance": {"gender": "Female", "height": ['-', '0 cm']},
-            "work": {"occupation": "Adventurer; former master mechanic, professional criminal, mercenary"}
-        },
-        {
-            "name": "Hero8",
-            "appearance": {"gender": "Female", "height": ['1000', '304.8 meters']},
-            "work": {"occupation": "Insurance Investigator"}
-        },
-        {
-            "name": "Hero9",
-            "appearance": {"gender": "Male", "height": ["6'8", '203 cm']},
-            "work": {"occupation": "-"}
-        },
-        {
-            "name": "Hero10",
-            "appearance": {"gender": "Male", "height": ["6'2", '188 cm']},
-            "work": {"occupation": "-"}
-        },
-        {
-            "name": "Hero11",
-            "appearance": {"gender": "Male", "height": ['-', '0 cm']},
-            "work": {"occupation": "-"}
-        },
-        {
-            "name": "Hero12",
-            "appearance": {"gender": "Male", "height": ['205', '62.5 meters']},
-            "work": {"occupation": "-"}
-        },
-        {
-            "name": "Hero13",
-            "appearance": {"gender": "Female", "height": ["6'3", '191 cm']},
-            "work": {"occupation": "-"}
-        },
-        {
-            "name": "Hero14",
-            "appearance": {"gender": "Female", "height": ["5'5", '165 cm']},
-            "work": {"occupation": "-"}
-        },
-        {
-            "name": "Hero15",
-            "appearance": {"gender": "Female", "height": ['-', '0 cm']},
-            "work": {"occupation": "-"}
-        },
-        {
-            "name": "Hero16",
-            "appearance": {"gender": "Female", "height": ['1000', '304.8 meters']},
-            "work": {"occupation": "-"}
-        }
-    ]
+from data import MOCK_RESPONSE
 
 @patch('requests.get')
 def test_male_work(mock_get):
@@ -93,7 +10,7 @@ def test_male_work(mock_get):
     mock_get.return_value.json = lambda: mock_response
 
     tallest_hero = get_tallest_hero("Male", True)
-    assert tallest_hero['name'] == "Hero4"
+    assert tallest_hero['name'] == "Hero0"
 
 @patch('requests.get')
 def test_male(mock_get):
@@ -121,3 +38,107 @@ def test_female(mock_get):
 
     tallest_hero = get_tallest_hero("Female", False)
     assert tallest_hero['name'] == "Hero16"
+
+@patch('requests.get')
+def test_empty_gender(mock_get):
+    mock_response = MOCK_RESPONSE
+    mock_get.return_value.status_code = 200
+    mock_get.return_value.json = lambda: mock_response
+
+    with pytest.raises(ValueError):
+        get_tallest_hero("", False)
+
+@patch('requests.get')
+def test_digits_gender(mock_get):
+    mock_response = MOCK_RESPONSE
+    mock_get.return_value.status_code = 200
+    mock_get.return_value.json = lambda: mock_response
+
+    with pytest.raises(TypeError):
+        get_tallest_hero(123, False)
+
+@patch('requests.get')
+def test_other_gender(mock_get):
+    mock_response = MOCK_RESPONSE
+    mock_get.return_value.status_code = 200
+    mock_get.return_value.json = lambda: mock_response
+
+    with pytest.raises(ValueError):
+        get_tallest_hero("non-binary", False)
+
+@patch('requests.get')
+def test_string_work_true(mock_get):
+    mock_response = MOCK_RESPONSE
+    mock_get.return_value.status_code = 200
+    mock_get.return_value.json = lambda: mock_response
+
+    with pytest.raises(TypeError):
+        get_tallest_hero("Male", "true")
+
+@patch('requests.get')
+def test_string_work_false(mock_get):
+    mock_response = MOCK_RESPONSE
+    mock_get.return_value.status_code = 200
+    mock_get.return_value.json = lambda: mock_response
+
+    with pytest.raises(TypeError):
+        get_tallest_hero("Female", "false")
+
+@patch('requests.get')
+def test_uppercase_gender(mock_get):
+    mock_response = MOCK_RESPONSE
+    mock_get.return_value.status_code = 200
+    mock_get.return_value.json = lambda: mock_response
+
+    tallest_hero = get_tallest_hero("MALE", True)
+    assert tallest_hero['name'] == "Hero0"
+
+@patch('requests.get')
+def test_lowercase_gender(mock_get):
+    mock_response = MOCK_RESPONSE
+    mock_get.return_value.status_code = 200
+    mock_get.return_value.json = lambda: mock_response
+
+    tallest_hero = get_tallest_hero("female", False)
+    assert tallest_hero['name'] == "Hero16"
+
+@patch('requests.get')
+def test_upper_lower_cases_gender(mock_get):
+    mock_response = MOCK_RESPONSE
+    mock_get.return_value.status_code = 200
+    mock_get.return_value.json = lambda: mock_response
+
+    tallest_hero = get_tallest_hero("FeMaLe", False)
+    assert tallest_hero['name'] == "Hero16"
+
+@patch('requests.get')
+def test_spaces_gender(mock_get):
+    mock_response = MOCK_RESPONSE
+    mock_get.return_value.status_code = 200
+    mock_get.return_value.json = lambda: mock_response
+
+    tallest_hero = get_tallest_hero("Male   ", False)
+    assert tallest_hero['name'] == "Hero12"
+
+@patch('requests.get')
+def test_spaces_and_spaces_gender(mock_get):
+    mock_response = MOCK_RESPONSE
+    mock_get.return_value.status_code = 200
+    mock_get.return_value.json = lambda: mock_response
+
+    tallest_hero = get_tallest_hero("   Female   ", True)
+    assert tallest_hero['name'] == "Hero8"
+
+@patch('requests.get')
+def test_no_heroes_match_criteria(mock_get):
+    mock_response = [
+        {
+            "name": "Hero",
+            "appearance": {"gender": "Male", "height": ["-", "0 cm"]},
+            "work": {"occupation": "-"}}
+    ]
+    mock_get.return_value.status_code = 200
+    mock_get.return_value.json = lambda: mock_response
+
+    with pytest.raises(ValueError):
+        get_tallest_hero("Male", True)
